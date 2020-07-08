@@ -10,6 +10,7 @@ import {
   getCountryCurrencyAsync,
   getCountryInfoAsync,
   search,
+  getCountryCodeAsync,
 } from './CountryService'
 
 export interface CountryContextParam {
@@ -23,6 +24,7 @@ export interface CountryContextParam {
   getCountryCurrencyAsync: typeof getCountryCurrencyAsync
   search: typeof search
   getCountryInfoAsync: typeof getCountryInfoAsync
+  getCountryCodeAsync: typeof getCountryCodeAsync
 }
 export const DEFAULT_COUNTRY_CONTEXT = {
   translation: 'common' as TranslationLanguageCode,
@@ -35,6 +37,7 @@ export const DEFAULT_COUNTRY_CONTEXT = {
   search,
   getLetters,
   getCountryInfoAsync,
+  getCountryCodeAsync,
 }
 export const CountryContext = React.createContext<CountryContextParam>(
   DEFAULT_COUNTRY_CONTEXT,
