@@ -128,7 +128,7 @@ export const getCountriesAsync = async (
   countryCodes?: CountryCode[],
   excludeCountries?: CountryCode[],
   preferredCountries?: CountryCode[],
-  withAlphaFilter?: boolean
+  withAlphaFilter?: boolean,
 ): Promise<Country[]> => {
   const countriesRaw = await loadDataAsync(flagType)
   if (!countriesRaw) {
@@ -136,27 +136,30 @@ export const getCountriesAsync = async (
   }
 
   if (preferredCountries && !withAlphaFilter) {
-    const newCountryCodeList = [...preferredCountries, ...CountryCodeList.filter(code => !preferredCountries.includes(code))]
+    const newCountryCodeList = [
+      ...preferredCountries,
+      ...CountryCodeList.filter((code) => !preferredCountries.includes(code)),
+    ]
 
-    const countries = newCountryCodeList.filter(isCountryPresent(countriesRaw))
-    .map((cca2: CountryCode) => ({
-      cca2,
-      ...{
-        ...countriesRaw[cca2],
-        name:
-          (countriesRaw[cca2].name as TranslationLanguageCodeMap)[
-            translation
-          ] ||
-          (countriesRaw[cca2].name as TranslationLanguageCodeMap)['common'],
-      },
-    }))
-    .filter(isRegion(region))
-    .filter(isSubregion(subregion))
-    .filter(isIncluded(countryCodes))
-    .filter(isExcluded(excludeCountries))
-    
+    const countries = newCountryCodeList
+      .filter(isCountryPresent(countriesRaw))
+      .map((cca2: CountryCode) => ({
+        cca2,
+        ...{
+          ...countriesRaw[cca2],
+          name:
+            (countriesRaw[cca2].name as TranslationLanguageCodeMap)[
+              translation
+            ] ||
+            (countriesRaw[cca2].name as TranslationLanguageCodeMap)['common'],
+        },
+      }))
+      .filter(isRegion(region))
+      .filter(isSubregion(subregion))
+      .filter(isIncluded(countryCodes))
+      .filter(isExcluded(excludeCountries))
+
     return countries
-
   } else {
     const countries = CountryCodeList.filter(isCountryPresent(countriesRaw))
       .map((cca2: CountryCode) => ({
@@ -241,4 +244,24 @@ export const getCountryInfoAsync = async ({
   const currency = await getCountryCurrencyAsync(countryCode)
   const callingCode = await getCountryCallingCodeAsync(countryCode)
   return { countryName, currency, callingCode }
+}
+
+export const getCountryCodeAsync = async (
+  option: 'currency' | 'callingCode' | 'flag' | 'name',
+  value: string,
+) => {
+  const countries = await loadDataAsync()
+  if (!countries) {
+    throw new Error('Unable to find image because imageCountries is undefined')
+  }
+  if (option === 'name') {
+    const country = Object.entries(countries).filter(
+      (item: any) => item[1][option]['common'] === value,
+    )[0]
+    return country[0]
+  }
+  const country = Object.entries(countries).filter(
+    (item) => item[1][option][0] === value,
+  )[0]
+  return country[0]
 }
